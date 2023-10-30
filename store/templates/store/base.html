@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TechSpace</title>
+    <style>
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff; /* Button background color */
+            color: #fff; /* Button text color */
+            text-decoration: none; /* Remove default link underline */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<a href="{% url 'home' %}" class="button">Home</a>
+<a href="{% url 'description' %}" class="button">About company</a>
+<a href="{% url 'delivery' %}" class="button">Delivery</a>
+<a href="{% url 'guarantee' %}" class="button">Guarantee</a>
+<a href="{% url 'contacts' %}" class="button">Contacts</a>
+
+{% block main %}
+{% for cat in cats %}
+<p>{{ cat }}</p>
+{% endfor %}
+{% endblock %}
+</body>
+</html>
