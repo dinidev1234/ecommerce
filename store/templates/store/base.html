@@ -24,8 +24,8 @@
 <a href="{% url 'contacts' %}" class="button">Contacts</a>
 
 {% block main %}
-{% for cat in cats %}
-<p>{{ cat }}</p>
+{% for c in cats %}
+<a href="{% url 'category' c.pk %}">{{ c }}</a>
 {% endfor %}
 {% endblock %}
 </body>

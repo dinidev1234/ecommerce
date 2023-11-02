@@ -1,19 +1,25 @@
 from django.shortcuts import render
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from .models import Product, Category
 
 
 # Create your views here.
-class ProductListView(ListView):
-    model = Product
-    context_object_name = 'products'
+
+def category_view(request, pk):
+    category = Category.objects.get(pk=pk)
+    products = Product.objects.filter(category=category)
+    return render(request, 'category.html', {'category': category, 'products': products})
 
 
-class CategoryListView(ListView):
-    model = Category
-    context_object_name = 'cats'
-    template_name = 'base.html'
+def product_view(request, category_pk, product_pk):
+    product = Product.objects.get(pk=product_pk)
+    return render(request, 'product.html', {'product': product})
+
+
+def home(request):
+    cats = Category.objects.all()
+    return render(request, 'base.html', {'cats': cats})
 
 
 def description(request):

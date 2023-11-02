@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block main %}
+<h1>{{ category.name }}</h1>
+    <ul>
+        {% for product in products %}
+            <li><a href="{% url 'product' category.pk product.pk %}">{{ product.name }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

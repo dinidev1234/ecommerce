@@ -120,10 +120,12 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+
+# Environments
 /env
 backend/config/.env
 .venv
-env/
+ECommerceSite/.env
 venv/
 ENV/
 env.bak/
