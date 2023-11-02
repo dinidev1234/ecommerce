@@ -1,0 +1,10 @@
+.button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff; /* Button background color */
+            color: #fff; /* Button text color */
+            text-decoration: none; /* Remove default link underline */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
