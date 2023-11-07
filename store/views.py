@@ -1,10 +1,42 @@
-from django.shortcuts import render
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 
 from .models import Product, Category
 
 
 # Create your views here.
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')  # Redirect to a success page
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+
+def add_to_cart(request, product_id):
+    product = Product.objects.get(pk=product_id)
+    cart = request.session.get('cart', [])
+    cart.append({
+        'id': product.id,
+        'name': product.name,
+        'price': float(product.price),
+    })
+    request.session['cart'] = cart
+    return redirect('home')
+
+
+def view_cart(request):
+    cart = request.session.get('cart', [])
+    return render(request, 'cart.html', {'cart': cart})
+
 
 def category_view(request, pk):
     category = Category.objects.get(pk=pk)

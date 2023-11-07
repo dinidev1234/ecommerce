@@ -52,6 +52,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Используем БД для хранения сессий
+SESSION_COOKIE_AGE = 1209600
 ROOT_URLCONF = 'ECommerceSite.urls'
 
 TEMPLATES = [
@@ -129,3 +131,5 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'store', 'static')]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'store/media')
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
