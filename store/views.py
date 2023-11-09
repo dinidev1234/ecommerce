@@ -1,7 +1,7 @@
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView
+from django.urls import reverse
 
 from .models import Product, Category
 
@@ -9,39 +9,78 @@ from .models import Product, Category
 # Create your views here.
 
 
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')  # Redirect to a success page
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
-
-
 def add_to_cart(request, product_id):
     product = Product.objects.get(pk=product_id)
     cart = request.session.get('cart', [])
-    cart.append({
-        'id': product.id,
-        'name': product.name,
-        'price': float(product.price),
-    })
+    id_list = list(map(lambda item: item['id'], cart)) #need to dont add added items in cart
+    if product_id not in id_list:
+        cart.append({
+            'id': product.id,
+            'name': product.name,
+            'price': float(product.price),
+            'quantity': 1
+        })
     request.session['cart'] = cart
-    return redirect('home')
+    url = reverse('category', kwargs={'pk': product.category_id})
+    return redirect(url)
+
+
+def remove_from_cart(request, product_id):
+    cart = request.session.get('cart', [])
+    cart = list(filter(lambda item: item.get('id') != product_id, cart))
+    request.session['cart'] = cart
+    return redirect('view_cart')
+
+
+# Ваше представление или представление API для увеличения количества товара
+def increase_quantity(request, product_id):
+    cart = request.session.get('cart', [])
+    for item in cart:
+        if item.get('id') == product_id:
+            # Увеличьте количество товара в этом словаре
+            item['quantity'] = item.get('quantity', 0) + 1
+            break
+
+    request.session['cart'] = cart
+
+    # Сохраните сессию
+    request.session.modified = True
+    return redirect('view_cart')
+
+
+def decrease_quantity(request, product_id):
+    cart = request.session.get('cart', [])
+    for item in cart:
+        if item.get('id') == product_id:
+            if item['quantity'] >= 1:
+                item['quantity'] = item.get('quantity', 0) - 1
+            if item['quantity'] == 0:
+                cart = list(filter(lambda item: item.get('id') != product_id, cart))
+
+            break
+
+    request.session['cart'] = cart
+
+    # Сохраните сессию
+    request.session.modified = True
+    return redirect('view_cart')
 
 
 def view_cart(request):
     cart = request.session.get('cart', [])
-    return render(request, 'cart.html', {'cart': cart})
+    price = sum([item.get('price') for item in cart])
+    return render(request, 'cart.html', {'cart': cart, 'price': price })
+#TODO make a plan for a checkout system
 
 
 def category_view(request, pk):
     category = Category.objects.get(pk=pk)
     products = Product.objects.filter(category=category)
-    return render(request, 'category.html', {'category': category, 'products': products})
+    cart = request.session.get('cart', [])
+
+    return render(request, 'category.html', {'category': category,
+                                             'products': products,
+                                             })
 
 
 def product_view(request, category_pk, product_pk):

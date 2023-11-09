@@ -1,10 +1,23 @@
 {% extends 'base.html' %}
 {% block main %}
     <h1>Shopping Cart</h1>
+    <h2>Total price: ${{ price }}</h2>
     <ul>
         {% for item in cart %}
             <li>
-                {{ item.name }} - ${{ item.price }}
+                {{ item.name }} - ${{ item.price }} - {{ item.quantity }}
+                <form method="post" action="{% url 'increase_quantity' item.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="+">
+                </form>
+                <form method="post" action="{% url 'decrease_quantity' item.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="-">
+                </form>
+                <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Remove">
+                </form>
             </li>
         {% endfor %}
     </ul>
