@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block main %}
+<div>
     <h1>Shopping Cart</h1>
     <h2>Total price: ${{ price }}</h2>
     <ul>
@@ -21,4 +22,6 @@
             </li>
         {% endfor %}
     </ul>
+    <a href="{% url 'checkout' %}">Checkout</a>
+    </div>
 {% endblock %}

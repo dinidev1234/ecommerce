@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block main %}
+<div>
+    <form method="post" action="{% url 'checkout' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Confirm Order">
+    </form>
+</div>
+{% endblock %}

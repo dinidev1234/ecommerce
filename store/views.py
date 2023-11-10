@@ -1,9 +1,11 @@
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import Product, Category
+from .forms import OrderForm
+from .models import Product, Category, Order
 
 
 # Create your views here.
@@ -68,9 +70,50 @@ def decrease_quantity(request, product_id):
 
 def view_cart(request):
     cart = request.session.get('cart', [])
-    price = sum([item.get('price') for item in cart])
+    price = sum([item.get('price') * item.get('quantity') for item in cart])
     return render(request, 'cart.html', {'cart': cart, 'price': price })
 #TODO make a plan for a checkout system
+
+
+def checkout(request):
+    cart = request.session.get('cart', [])
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            # Получение данных из формы
+            name = form.cleaned_data['name']
+            address = form.cleaned_data['address']
+            phone = form.cleaned_data['phone']
+            products = [item['id'] for item in cart]
+            comment = form.cleaned_data['comment']
+            total_price = sum([item.get('price') * item.get('quantity') for item in cart])
+
+            # Создание заказа и установка значения для поля price
+            order = Order(
+                name=name,
+                address=address,
+                phone=phone,
+                comment=comment,
+                total_price=total_price,
+                session_key=request.session.session_key
+            )
+            order.save()
+            order.products.add(*products)
+            return redirect('order_confirmation')
+    else:
+        form = OrderForm()
+
+    return render(request, 'checkout.html', {'form': form})
+
+
+def order_confirmation(request):
+    session_key = request.session.session_key
+    order = Order.objects.filter(session_key=session_key).last()
+    if order:
+        request.session['cart'] = []
+        return render(request, 'order_confirmation.html', {'order': order})
+    else:
+        return HttpResponse('Order not found')
 
 
 def category_view(request, pk):
