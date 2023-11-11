@@ -17,6 +17,10 @@
 
 
 
+{% for c in cats %}
+<p><a href="{% url 'category' c.pk %}">{{ c }}</a></p>
+{% endfor %}
+
 
 {% block main %}
 {% for c in cats %}

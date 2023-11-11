@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .forms import OrderForm
-from .models import Product, Category, Order
+from .models import Product, Category, Order, OrderItem
 
 
 # Create your views here.
@@ -72,23 +72,22 @@ def view_cart(request):
     cart = request.session.get('cart', [])
     price = sum([item.get('price') * item.get('quantity') for item in cart])
     return render(request, 'cart.html', {'cart': cart, 'price': price })
-#TODO make a plan for a checkout system
 
 
 def checkout(request):
     cart = request.session.get('cart', [])
+    if not cart:
+        return HttpResponse('Cart is empty')
+
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            # Получение данных из формы
             name = form.cleaned_data['name']
             address = form.cleaned_data['address']
             phone = form.cleaned_data['phone']
-            products = [item['id'] for item in cart]
             comment = form.cleaned_data['comment']
             total_price = sum([item.get('price') * item.get('quantity') for item in cart])
 
-            # Создание заказа и установка значения для поля price
             order = Order(
                 name=name,
                 address=address,
@@ -98,7 +97,16 @@ def checkout(request):
                 session_key=request.session.session_key
             )
             order.save()
-            order.products.add(*products)
+            for item in cart:
+                product = Product.objects.get(pk=item['id'])
+                order_item = OrderItem(
+                    order=order,
+                    product=product,
+                    price=item['price'],
+                    quantity=item['quantity']
+
+                )
+                order_item.save()
             return redirect('order_confirmation')
     else:
         form = OrderForm()

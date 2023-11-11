@@ -22,6 +22,8 @@
             </li>
         {% endfor %}
     </ul>
+    {% if cart %}
     <a href="{% url 'checkout' %}">Checkout</a>
+    {% endif %}
     </div>
 {% endblock %}
