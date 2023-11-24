@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block main %}
+
+<div>
+    <h1>Shopping Cart</h1>
+    <h2>Total price: ${{ price }}</h2>
+    <div class="example-div">
+    <ul>
+        {% if not cart %}
+            <p class="low-opacity-text">Cart is empty</p>
+        {% else %}
+        {% for item in cart %}
+            <li>
+                {{ item.name }} - ${{ item.price }} - {{ item.quantity }}
+
+                <form method="post" action="{% url 'increase_quantity' item.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="+">
+                </form>
+                <form method="post" action="{% url 'decrease_quantity' item.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="-">
+                </form>
+                <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Remove">
+                </form>
+            </li>
+        {% endfor %}
+        {% endif %}
+    </ul>
+        </div>
+    {% if cart %}
+    <a href="{% url 'checkout' %}">Checkout</a>
+    {% endif %}
+    </div>
+{% endblock %}

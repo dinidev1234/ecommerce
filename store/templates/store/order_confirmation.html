@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block main %}
+<div>
+<h2>Order confirmed</h2>
+<p>Order number: {{ order.id }}</p>
+<p>Total price: {{ order.total_price }}</p>
+<!-- Другие детали заказа -->
+</div>
+{% endblock %}

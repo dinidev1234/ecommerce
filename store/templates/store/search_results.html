@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block main %}
+<div>
+    <h1>Search for "{{ query }}"</h1>
+    {% if not results %}
+    <h1>Not found</h1>
+{% else %}
+    <ul>
+        {% for product in results %}
+            <li>
+                {{ product.name }}
+                <form method="post" action="{% url 'add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Buy">
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</div>
+
+{% endblock %}
