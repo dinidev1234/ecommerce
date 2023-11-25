@@ -3,7 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Category(models.Model):
-    image = models.ImageField(upload_to='category_images/', null=True, blank=True)
+    image = models.ImageField(upload_to='category_images/',
+                              null=True, blank=True)
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -11,7 +12,8 @@ class Category(models.Model):
 
 
 class Subcategory(models.Model):
-    image = models.ImageField(upload_to='sub_category_images/', null=True, blank=True)
+    image = models.ImageField(upload_to='sub_category_images/',
+                              null=True, blank=True)
     name = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
@@ -20,8 +22,10 @@ class Subcategory(models.Model):
 
 
 class Product(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, related_name='category_products')
-    sub_category = models.ForeignKey(Subcategory, on_delete=models.CASCADE, null=True, related_name='sub_category_products')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,
+                                 null=True, related_name='category_products')
+    sub_category = models.ForeignKey(Subcategory, on_delete=models.CASCADE,
+                                     null=True, related_name='sub_category_products')
     image = models.ImageField(upload_to='product_images/%Y/%m/%d')
     name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -40,10 +44,13 @@ class Order(models.Model):
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
     phone = models.CharField(max_length=15)
-    comment = models.CharField(max_length=255, blank=True, null=True)  # Позволяет быть пустым и в базе данных
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)  # Значение по умолчанию
+    comment = models.CharField(max_length=255,
+                               blank=True, null=True)  # Позволяет быть пустым и в базе данных
+    total_price = models.DecimalField(max_digits=10,
+                                      decimal_places=2, default=0.0)  # Значение по умолчанию
     date_ordered = models.DateTimeField(auto_now_add=True)
-    session_key = models.CharField(max_length=32, blank=True, null=True)
+    session_key = models.CharField(max_length=32,
+                                   blank=True, null=True)
     delivery_status = models.PositiveSmallIntegerField(
         verbose_name=_("Delivery status"),
         choices=DeliveryChoices.choices,
@@ -51,7 +58,10 @@ class Order(models.Model):
     )
 
     def __str__(self):
-        return f'Order ID: {self.id}, User: {self.name}, Total Price: {self.total_price}, Date: {self.date_ordered}'
+        return f'Order ID: {self.id}, ' \
+               f'User: {self.name}, ' \
+               f'Total Price: {self.total_price}, ' \
+               f'Date: {self.date_ordered}'
 
 
 class OrderItem(models.Model):
@@ -69,14 +79,18 @@ class OrderItem(models.Model):
         on_delete=models.CASCADE,
     )
     price = models.DecimalField(
-        verbose_name=_("Price"), max_digits=12, decimal_places=2
+        verbose_name=_("Price"),
+        max_digits=12, decimal_places=2
     )
     quantity = models.PositiveIntegerField(
         verbose_name=_("Quantity"), default=1
     )
 
     def __str__(self):
-        return f"Order ID: {self.order.id}; Product ID: {self.product.id}; Product Name: {self.product}; Product Quantity: {self.quantity}"
+        return f"Order ID: {self.order.id}; " \
+               f"Product ID: {self.product.id}; " \
+               f"Product Name: {self.product}; " \
+               f"Product Quantity: {self.quantity}"
 
     class Meta:
         ordering = ("-id",)

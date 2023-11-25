@@ -9,8 +9,11 @@ from django.core.cache import cache
 def search_result(request):
     query = request.GET.get('query', '')  # Получаем значение параметра 'query' из запроса
     print(query)
-    results = Product.objects.filter(name__icontains=query) | Product.objects.filter(description__icontains=query)
-    return render(request, 'search_results.html', {'query': query, 'results': results})
+    results = Product.objects.filter(
+        name__icontains=query) | Product.objects.filter(description__icontains=query
+                                                        )
+    return render(request, 'search_results.html', {'query': query,
+                                                   'results': results})
 
 
 def add_to_cart(request, product_id):
@@ -59,7 +62,11 @@ def decrease_quantity(request, product_id):
             if item['quantity'] >= 1:
                 item['quantity'] = item.get('quantity', 0) - 1
             if item['quantity'] == 0:
-                cart = list(filter(lambda item: item.get('id') != product_id, cart))
+                cart = list(
+                    filter(
+                        lambda item: item.get('id') != product_id, cart
+                    )
+                )
 
             break
 
@@ -88,7 +95,9 @@ def checkout(request):
             address = form.cleaned_data['address']
             phone = form.cleaned_data['phone']
             comment = form.cleaned_data['comment']
-            total_price = sum([item.get('price') * item.get('quantity') for item in cart])
+            total_price = sum(
+                [item.get('price') * item.get('quantity') for item in cart]
+            )
 
             order = Order(
                 name=name,
@@ -118,7 +127,8 @@ def checkout(request):
 
 def order_confirmation(request):
     session_key = request.session.session_key
-    order = Order.objects.filter(session_key=session_key).last()
+    order = Order.objects.filter(
+        session_key=session_key).last()
     if order:
         request.session['cart'] = []
         return render(request, 'order_confirmation.html', {'order': order})
@@ -131,18 +141,17 @@ def category_view(request, category_pk):
     sub_cats = Subcategory.objects.filter(category_id=category_pk)
 
     return render(request, 'category.html', {'category': category,
-                                             'sub_cats': sub_cats,
-                                             })
+                                             'sub_cats': sub_cats})
 
 
-def sub_category_view(request, category_pk,  sub_category_pk):
+def sub_category_view(request, category_pk, sub_category_pk):
     products = Product.objects.filter(sub_category_id=sub_category_pk)
     return render(request, 'sub_category.html', {'products': products,
                                                  'category_pk': category_pk,
                                                  'sub_category_pk': sub_category_pk})
 
 
-def product_view(request, category_pk,  sub_category_pk, product_pk):
+def product_view(request, category_pk, sub_category_pk, product_pk):
     product = Product.objects.get(pk=product_pk)
     return render(request, 'product.html', {'product': product})
 
@@ -158,6 +167,3 @@ def home(request):
         cats = cached_cats
         print('Data from cache')
     return render(request, 'base.html', {'cats': cats})
-
-
-
