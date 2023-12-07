@@ -71,6 +71,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'store.context_processors.cats',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -90,6 +91,35 @@ CACHES = {
     }
 }
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "main_format": {
+            "format": "{asctime} - {levelname} - {module} - {filename} - {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "main_format",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "formatter": "main_format",
+            "filename": "information.log"
+        }
+    },
+    "loggers": {
+        "main": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": True,
+        }
+    },
+}
+
 WSGI_APPLICATION = 'ECommerceSite.wsgi.application'
 
 # Database
@@ -106,14 +136,6 @@ DATABASES = {
    }
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": os.path.join(BASE_DIR, 'ecommerce_cache'),
-    }
-}
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {

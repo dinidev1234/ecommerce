@@ -2,13 +2,14 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .forms import OrderForm
 from .models import Product, Category, Order, OrderItem, Subcategory
-from django.core.cache import cache
+import logging
+
+logger = logging.getLogger('main')
 
 
 # Create your views here.
 def search_result(request):
-    query = request.GET.get('query', '')  # Получаем значение параметра 'query' из запроса
-    print(query)
+    query = request.GET.get('query', None)  # Получаем значение параметра 'query' из запроса
     results = Product.objects.filter(
         name__icontains=query) | Product.objects.filter(description__icontains=query
                                                         )
@@ -28,7 +29,7 @@ def add_to_cart(request, product_id):
             'quantity': 1
         })
         request.session['cart'] = cart
-
+    logger.info(f'product with ID:{product_id} added to cart')
     return redirect('view_cart')
 
 
@@ -36,6 +37,7 @@ def remove_from_cart(request, product_id):
     cart = request.session.get('cart', [])
     cart = list(filter(lambda item: item.get('id') != product_id, cart))
     request.session['cart'] = cart
+    logger.info(f'product with ID:{product_id} removed from cart')
     return redirect('view_cart')
 
 
@@ -52,6 +54,7 @@ def increase_quantity(request, product_id):
 
     # Сохраните сессию
     request.session.modified = True
+    logger.info('quantity increased')
     return redirect('view_cart')
 
 
@@ -74,10 +77,12 @@ def decrease_quantity(request, product_id):
 
     # Сохраните сессию
     request.session.modified = True
+    logger.info(f'quantity decreased')
     return redirect('view_cart')
 
 
 def view_cart(request):
+    logger.info('view_cart')
     cart = request.session.get('cart', [])
     price = sum([item.get('price') * item.get('quantity') for item in cart])
     return render(request, 'cart.html', {'cart': cart, 'price': price})
@@ -130,6 +135,7 @@ def order_confirmation(request):
     order = Order.objects.filter(
         session_key=session_key).last()
     if order:
+        logger.info(f'order with ID{order.pk} confirmed')
         request.session['cart'] = []
         return render(request, 'order_confirmation.html', {'order': order})
     else:
@@ -137,6 +143,7 @@ def order_confirmation(request):
 
 
 def category_view(request, category_pk):
+    logger.info(f'displayed sub_cats from category ID{category_pk}')
     category = Category.objects.get(pk=category_pk)
     sub_cats = Subcategory.objects.filter(category_id=category_pk)
 
@@ -145,6 +152,7 @@ def category_view(request, category_pk):
 
 
 def sub_category_view(request, category_pk, sub_category_pk):
+    logger.info(f'displayed products from sub_category ID{sub_category_pk}')
     products = Product.objects.filter(sub_category_id=sub_category_pk)
     return render(request, 'sub_category.html', {'products': products,
                                                  'category_pk': category_pk,
@@ -152,18 +160,10 @@ def sub_category_view(request, category_pk, sub_category_pk):
 
 
 def product_view(request, category_pk, sub_category_pk, product_pk):
+    logger.info(f'displayed product with ID:{product_pk}')
     product = Product.objects.get(pk=product_pk)
     return render(request, 'product.html', {'product': product})
 
 
 def home(request):
-    cached_cats = cache.get('cached_cats')
-
-    if cached_cats is None:
-        cats = Category.objects.all()
-        print('Data from db')
-        cache.set('cached_cats', cats, 300)  # Cache for 300 seconds (adjust as needed)
-    else:
-        cats = cached_cats
-        print('Data from cache')
-    return render(request, 'base.html', {'cats': cats})
+    return render(request, 'base.html', {})

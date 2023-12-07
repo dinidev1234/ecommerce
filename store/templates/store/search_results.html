@@ -8,11 +8,18 @@
     <ul>
         {% for product in results %}
             <li>
-                {{ product.name }}
-                <form method="post" action="{% url 'add_to_cart' product.id %}">
-                    {% csrf_token %}
-                    <input type="submit" value="Buy">
-                </form>
+                <div class="card" style="width: 15rem;">
+  <img src="{{product.image.url}}" class="card-img-top" alt="...">
+  <div class="card-body">
+      <div>${{product.price}}</div>
+    <p>{{ product.name }}</p>
+    <p class="card-text">{{product.description}}</p>
+    <a href="{% url 'view_cart' %}"><form method="post" action="{% url 'add_to_cart' product.pk %}">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-primary" value="Buy">
+                    </form></a>
+  </div>
+</div>
             </li>
         {% endfor %}
     </ul>
